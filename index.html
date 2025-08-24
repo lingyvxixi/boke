@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI音乐博客 | 我的创作空间</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#8B5CF6',
+            secondary: '#D97706',
+            dark: '#1E293B',
+            light: '#F8FAFC'
+          },
+          fontFamily: {
+            serif: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .bg-blur {
+        backdrop-filter: blur(8px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-dark text-light antialiased">
+  <!-- 导航栏 -->
+  <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="navbar">
+    <nav class="container mx-auto px-4 py-4 flex items-center justify-between bg-dark/80 bg-blur border-b border-primary/20">
+      <a href="#" class="flex items-center space-x-2">
+        <i class="fa fa-music text-secondary text-2xl"></i>
+        <span class="text-xl font-serif font-bold tracking-wide">AI音乐博客</span>
+      </a>
+      
+      <!-- 桌面导航 -->
+      <div class="hidden md:flex items-center space-x-8">
+        <a href="#" class="hover:text-secondary transition-colors">首页</a>
+        <a href="#music" class="hover:text-secondary transition-colors">音乐库</a>
+        <a href="#blog" class="hover:text-secondary transition-colors">博客</a>
+        <a href="#about" class="hover:text-secondary transition-colors">关于我</a>
+      </div>
+      
+      <!-- 移动端菜单按钮 -->
+      <button class="md:hidden text-2xl" id="menu-toggle">
+        <i class="fa fa-bars"></i>
+      </button>
+    </nav>
+    
+    <!-- 移动端导航菜单 -->
+    <div class="md:hidden hidden bg-dark/95 bg-blur border-b border-primary/20" id="mobile-menu">
+      <div class="container mx-auto px-4 py-4 flex flex-col space-y-4">
+        <a href="#" class="hover:text-secondary transition-colors py-2">首页</a>
+        <a href="#music" class="hover:text-secondary transition-colors py-2">音乐库</a>
+        <a href="#blog" class="hover:text-secondary transition-colors py-2">博客</a>
+        <a href="#about" class="hover:text-secondary transition-colors py-2">关于我</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="pt-20">
+    <!-- 英雄区域 -->
+    <section class="relative h-[80vh] flex items-center justify-center overflow-hidden">
+      <div class="absolute inset-0 z-0">
+        <div class="absolute inset-0 bg-gradient-to-b from-dark via-dark/80 to-dark"></div>
+        <img src="https://picsum.photos/id/1076/1920/1080" alt="音乐创作背景图，展示音乐设备和声波可视化元素" class="w-full h-full object-cover opacity-40">
+      </div>
+      
+      <div class="container mx-auto px-4 z-10 text-center">
+        <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-serif font-bold mb-6 leading-tight text-shadow">
+          探索AI音乐的<br class="md:hidden">无限可能
+        </h1>
+        <p class="text-[clamp(1rem,2vw,1.25rem)] max-w-2xl mx-auto mb-10 text-gray-300">
+          欢迎来到我的音乐博客，这里展示了我使用人工智能创作的音乐作品，希望能带给你不一样的听觉体验。
+        </p>
+        <a href="#music" class="inline-flex items-center space-x-2 bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg shadow-primary/20">
+          <span>聆听音乐</span>
+          <i class="fa fa-arrow-right"></i>
+        </a>
+      </div>
+    </section>
+    
+    <!-- 音乐播放器区域 -->
+    <section id="music" class="py-20 bg-gradient-to-b from-dark to-dark/95">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-serif font-bold mb-4">AI音乐作品</h2>
+          <p class="text-gray-400 max-w-2xl mx-auto">这里是我创作的AI音乐集合，每一首都融入了独特的创意和情感。点击播放，感受AI与音乐的完美融合。</p>
+        </div>
+        
+        <div class="max-w-4xl mx-auto">
+          <!-- 音频可视化区域 -->
+          <div class="bg-dark/50 border border-primary/30 rounded-xl p-6 mb-10 shadow-xl">
+            <canvas id="visualizer" class="w-full h-48 rounded-lg bg-dark/80"></canvas>
+          </div>
+          
+          <!-- 声音提示信息 -->
+          <div id="audio-info" class="bg-secondary/10 border border-secondary/30 rounded-lg p-4 mb-6 hidden">
+            <p class="text-center text-secondary text-sm"><i class="fa fa-info-circle mr-1"></i> 提示：点击播放按钮开始播放音乐，确保您的设备音量已开启</p>
+          </div>
+          
+          <!-- 音乐播放器 -->
+          <div class="bg-dark/50 border border-primary/30 rounded-xl p-6 shadow-xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <!-- 音乐信息 -->
+              <div class="flex items-center space-x-4">
+                <div class="w-20 h-20 rounded-lg overflow-hidden bg-primary/20 flex items-center justify-center">
+                  <i class="fa fa-music text-4xl text-secondary"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-medium" id="current-track">选择一首音乐</h3>
+                  <p class="text-gray-400 text-sm" id="track-info">AI生成音乐作品</p>
+                </div>
+              </div>
+              
+              <!-- 播放控制 -->
+              <div class="flex-1 flex flex-col items-center">
+                <div class="flex items-center space-x-6 mb-4">
+                  <button id="prev-btn" class="text-gray-400 hover:text-secondary transition-colors">
+                    <i class="fa fa-step-backward text-xl"></i>
+                  </button>
+                  <button id="play-btn" class="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center text-white transition-all transform hover:scale-110">
+                    <i class="fa fa-play text-xl"></i>
+                  </button>
+                  <button id="next-btn" class="text-gray-400 hover:text-secondary transition-colors">
+                    <i class="fa fa-step-forward text-xl"></i>
+                  </button>
+                </div>
+                
+                <!-- 进度条 -->
+                <div class="w-full max-w-md">
+                  <div class="flex justify-between text-xs text-gray-500 mb-1">
+                    <span id="current-time">00:00</span>
+                    <span id="total-time">00:00</span>
+                  </div>
+                  <div class="w-full h-1 bg-gray-700 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-secondary rounded-full w-0 transition-all"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 音量控制 -->
+              <div class="hidden md:flex items-center space-x-2">
+                <i class="fa fa-volume-up text-gray-400"></i>
+                <input type="range" id="volume-control" min="0" max="1" step="0.05" value="0.7" class="w-24 accent-secondary">
+              </div>
+            </div>
+          </div>
+          
+          <!-- 音乐列表 -->
+          <div class="mt-10 bg-dark/50 border border-primary/30 rounded-xl p-6 shadow-xl">
+            <h3 class="text-xl font-medium mb-4 flex items-center">
+              <i class="fa fa-list-ul text-secondary mr-2"></i>
+              音乐列表
+            </h3>
+            <ul class="space-y-2 max-h-60 overflow-y-auto pr-2" id="track-list">
+              <!-- 音乐列表项会通过JavaScript动态生成 -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 博客区域 -->
+    <section id="blog" class="py-20 bg-dark">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-serif font-bold mb-4">音乐创作博客</h2>
+          <p class="text-gray-400 max-w-2xl mx-auto">记录我的AI音乐创作历程、技术探索和灵感来源，分享人工智能与音乐结合的奇妙世界。</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- 博客文章卡片 1 -->
+          <article class="bg-dark/50 border border-primary/20 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="h-48 overflow-hidden">
+              <img src="https://picsum.photos/id/1035/600/400" alt="AI音乐创作工具界面截图" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-400 mb-3">
+                <span class="flex items-center"><i class="fa fa-calendar-o mr-1"></i> 2023-06-15</span>
+                <span class="mx-2">•</span>
+                <span class="flex items-center"><i class="fa fa-tag mr-1"></i> 工具介绍</span>
+              </div>
+              <h3 class="text-xl font-medium mb-3 hover:text-secondary transition-colors">
+                <a href="#">10款必备的AI音乐创作工具</a>
+              </h3>
+              <p class="text-gray-400 mb-4 line-clamp-3">介绍目前最流行的AI音乐创作工具，从旋律生成到编曲混音，全方位提升你的创作效率...</p>
+              <a href="#" class="inline-flex items-center text-primary hover:text-secondary transition-colors">
+                <span>阅读更多</span>
+                <i class="fa fa-long-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </article>
+          
+          <!-- 博客文章卡片 2 -->
+          <article class="bg-dark/50 border border-primary/20 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="h-48 overflow-hidden">
+              <img src="https://picsum.photos/id/1073/600/400" alt="音乐制作工作台" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-400 mb-3">
+                <span class="flex items-center"><i class="fa fa-calendar-o mr-1"></i> 2023-05-28</span>
+                <span class="mx-2">•</span>
+                <span class="flex items-center"><i class="fa fa-tag mr-1"></i> 创作技巧</span>
+              </div>
+              <h3 class="text-xl font-medium mb-3 hover:text-secondary transition-colors">
+                <a href="#">我的AI音乐创作流程分享</a>
+              </h3>
+              <p class="text-gray-400 mb-4 line-clamp-3">从灵感构思到最终成品，详细解析我如何利用AI工具完成一首音乐作品的全过程...</p>
+              <a href="#" class="inline-flex items-center text-primary hover:text-secondary transition-colors">
+                <span>阅读更多</span>
+                <i class="fa fa-long-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </article>
+          
+          <!-- 博客文章卡片 3 -->
+          <article class="bg-dark/50 border border-primary/20 rounded-xl overflow-hidden hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 transform hover:-translate-y-1">
+            <div class="h-48 overflow-hidden">
+              <img src="https://picsum.photos/id/1062/600/400" alt="未来音乐概念图" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            </div>
+            <div class="p-6">
+              <div class="flex items-center text-sm text-gray-400 mb-3">
+                <span class="flex items-center"><i class="fa fa-calendar-o mr-1"></i> 2023-05-10</span>
+                <span class="mx-2">•</span>
+                <span class="flex items-center"><i class="fa fa-tag mr-1"></i> 行业洞察</span>
+              </div>
+              <h3 class="text-xl font-medium mb-3 hover:text-secondary transition-colors">
+                <a href="#">AI如何改变音乐产业的未来</a>
+              </h3>
+              <p class="text-gray-400 mb-4 line-clamp-3">探讨人工智能技术对音乐创作、制作和分发方式的深远影响，以及未来可能的发展方向...</p>
+              <a href="#" class="inline-flex items-center text-primary hover:text-secondary transition-colors">
+                <span>阅读更多</span>
+                <i class="fa fa-long-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </article>
+        </div>
+        
+        <div class="text-center mt-12">
+          <a href="#" class="inline-flex items-center space-x-2 bg-transparent border border-primary hover:bg-primary/10 text-primary font-medium py-2 px-6 rounded-full transition-all duration-300">
+            <span>查看所有文章</span>
+            <i class="fa fa-chevron-right"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 关于我区域 -->
+    <section id="about" class="py-20 bg-gradient-to-b from-dark/95 to-dark">
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-serif font-bold mb-4">关于我</h2>
+            <p class="text-gray-400 max-w-2xl mx-auto">一名热爱音乐与技术的创作者，致力于探索人工智能在音乐创作中的无限可能。</p>
+          </div>
+          
+          <div class="bg-dark/50 border border-primary/30 rounded-xl p-8 md:p-10 shadow-xl">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+              <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-primary/50">
+                <img src="https://picsum.photos/id/1005/200/200" alt="个人照片" class="w-full h-full object-cover">
+              </div>
+              
+              <div class="flex-1 text-center md:text-left">
+                <h3 class="text-2xl font-serif font-bold mb-4">音乐与AI的探索者</h3>
+                <p class="text-gray-300 mb-4">
+                  我是一名结合音乐创作与人工智能技术的爱好者，拥有多年的音乐制作经验和编程背景。
+                  我的作品融合了传统音乐理论与现代AI技术，试图创造出独特而富有情感的音乐体验。
+                </p>
+                <p class="text-gray-300 mb-6">
+                  这个博客是我分享创作成果、技术心得和音乐探索的空间，希望能与同样对AI音乐感兴趣的朋友交流学习。
+                </p>
+                
+                <div class="flex justify-center md:justify-start space-x-4">
+                  <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                    <i class="fa fa-twitter"></i>
+                  </a>
+                  <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                    <i class="fa fa-instagram"></i>
+                  </a>
+                  <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                    <i class="fa fa-soundcloud"></i>
+                  </a>
+                  <a href="#" class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-colors">
+                    <i class="fa fa-github"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 联系区域 -->
+    <section class="py-20 bg-dark">
+      <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-serif font-bold mb-4">与我联系</h2>
+          <p class="text-gray-400 mb-10">如果你对我的音乐作品有任何想法或建议，或者想探讨AI音乐创作的相关话题，欢迎随时联系我。</p>
+          
+          <a href="mailto:contact@aimusicblog.com" class="inline-flex items-center space-x-2 bg-secondary hover:bg-secondary/90 text-white font-medium py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg shadow-secondary/20">
+            <i class="fa fa-envelope"></i>
+            <span>发送邮件</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <!-- 页脚 -->
+  <footer class="bg-dark/80 border-t border-primary/20 py-10">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center space-x-2 mb-6 md:mb-0">
+          <i class="fa fa-music text-secondary text-xl"></i>
+          <span class="text-lg font-serif font-bold">AI音乐博客</span>
+        </div>
+        
+        <div class="text-gray-400 text-sm text-center md:text-right">
+          <p>&copy; 2023 AI音乐博客. 保留所有权利.</p>
+          <p class="mt-1">用AI创造，用心聆听</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- 音频元素（隐藏） -->
+  <audio id="audio-player" preload="metadata">
+    您的浏览器不支持音频播放
+  </audio>
+  
+  <script>
+    // 音乐数据 - 请将您的音频文件放在与HTML文件相同的目录下
+    const tracks = [
+      {
+        file: '翎羽-习习 - 【AI翻唱_浊心斯卡蒂】《ありがとう・・・》“如果 能够再一次与你相会的话，只想对你说一句，谢谢，谢谢”.MP3',  // 音频文件名，需与HTML文件同目录
+        title: 'AI梦境音乐 #1',  // 音乐标题
+        description: '氛围音乐 · 4:08',  // 音乐描述和时长
+      },
+      {
+        file: 'ai-music-2.mp3',
+        title: '电子脉冲 #2',
+        description: '电子音乐 · 4:12'
+      },
+      {
+        file: 'ai-music-3.mp3',
+        title: '未来交响 #3',
+        description: '古典融合 · 5:30'
+      },
+      {
+        file: 'ai-music-4.mp3',
+        title: '自然之声 #4',
+        description: '环境音乐 · 6:20'
+      },
+      {
+        file: 'ai-music-5.mp3',
+        title: '城市律动 #5',
+        description: '爵士风格 · 3:58'
+      }
+    ];
+    
+    // DOM元素
+    const audioPlayer = document.getElementById('audio-player');
+    const playBtn = document.getElementById('play-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const currentTimeEl = document.getElementById('current-time');
+    const totalTimeEl = document.getElementById('total-time');
+    const volumeControl = document.getElementById('volume-control');
+    const currentTrackEl = document.getElementById('current-track');
+    const trackInfoEl = document.getElementById('track-info');
+    const trackListEl = document.getElementById('track-list');
+    const visualizer = document.getElementById('visualizer');
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navbar = document.getElementById('navbar');
+    const audioInfo = document.getElementById('audio-info');
+    
+    // 音频可视化相关变量
+    let audioContext;
+    let analyser;
+    let dataArray;
+    let animationId;
+    let source;
+    
+    // 当前播放索引
+    let currentTrackIndex = -1;
+    
+    // 显示音频信息提示
+    function showAudioInfo() {
+      audioInfo.classList.remove('hidden');
+      setTimeout(() => {
+        audioInfo.classList.add('hidden');
+      }, 5000);
+    }
+    
+    // 初始化音乐列表
+    function initTrackList() {
+      trackListEl.innerHTML = '';
+      
+      tracks.forEach((track, index) => {
+        const li = document.createElement('li');
+        li.className = 'p-3 hover:bg-primary/10 rounded-lg cursor-pointer transition-colors flex justify-between items-center track-item';
+        li.dataset.track = track.file;
+        li.dataset.title = track.title;
+        li.dataset.index = index;
+        
+        li.innerHTML = `
+          <div>
+            <span class="block font-medium">${track.title}</span>
+            <span class="text-sm text-gray-400">${track.description}</span>
+          </div>
+          <i class="fa fa-play text-gray-400 hover:text-secondary"></i>
+        `;
+        
+        li.addEventListener('click', () => {
+          playTrack(index);
+        });
+        
+        trackListEl.appendChild(li);
+      });
+      
+      // 显示音频信息提示
+      showAudioInfo();
+    }
+    
+    // 确保音频上下文已 resume
+    async function ensureAudioContext() {
+      if (!audioContext) {
+        try {
+          window.AudioContext = window.AudioContext || window.webkitAudioContext;
+          audioContext = new AudioContext();
+        } catch (e) {
+          console.error('创建AudioContext失败:', e);
+          return false;
+        }
+      }
+      
+      // 检查音频上下文状态，如果是suspended则resume
+      if (audioContext.state === 'suspended') {
+        try {
+          await audioContext.resume();
+        } catch (e) {
+          console.error('无法resume AudioContext:', e);
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    
+    // 播放指定索引的音乐
+    async function playTrack(index) {
+      // 确保有用户交互后再播放
+      if (!await ensureAudioContext()) {
+        alert('无法初始化音频播放，请尝试更换浏览器或检查浏览器设置');
+        return;
+      }
+      
+      if (index >= 0 && index < tracks.length) {
+        currentTrackIndex = index;
+        const track = tracks[index];
+        
+        // 更新当前播放信息
+        currentTrackEl.textContent = track.title;
+        trackInfoEl.textContent = track.description;
+        
+        try {
+          // 加载并播放音频
+          audioPlayer.src = track.file;
+          audioPlayer.load();
+          await audioPlayer.play();
+          
+          // 更新播放按钮状态
+          updatePlayButton();
+          
+          // 高亮当前播放的曲目
+          highlightCurrentTrack();
+          
+          // 初始化音频可视化
+          initVisualizer();
+        } catch (e) {
+          console.error('播放失败:', e);
+          alert('播放失败: ' + e.message + '。请确保音频文件存在且格式正确。');
+        }
+      }
+    }
+    
+    // 初始化音频可视化
+    function initVisualizer() {
+      // 清除之前的动画
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      
+      if (!audioContext) return;
+      
+      try {
+        // 如果已有source，先断开连接
+        if (source) {
+          source.disconnect();
+        }
+        
+        // 创建分析器
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+        
+        // 连接音频源
+        source = audioContext.createMediaElementSource(audioPlayer);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+        // 开始绘制可视化
+        drawVisualizer();
+      } catch (e) {
+        console.error('音频可视化初始化失败:', e);
+      }
+    }
+    
+    // 绘制音频可视化
+    function drawVisualizer() {
+      if (!analyser) return;
+      
+      const canvasCtx = visualizer.getContext('2d');
+      const width = visualizer.width = visualizer.offsetWidth;
+      const height = visualizer.height = visualizer.offsetHeight;
+      
+      // 清除画布
+      canvasCtx.clearRect(0, 0, width, height);
+      
+      // 获取频率数据
+      analyser.getByteFrequencyData(dataArray);
+      
+      // 绘制可视化效果
+      const barWidth = (width / dataArray.length) * 2.5;
+      let x = 0;
+      
+      for (let i = 0; i < dataArray.length; i++) {
+        const barHeight = (dataArray[i] / 255) * height;
+        
+        // 创建渐变颜色
+        const gradient = canvasCtx.createLinearGradient(0, height, 0, height - barHeight);
+        gradient.addColorStop(0, '#D97706'); // 金色
+        gradient.addColorStop(1, '#8B5CF6'); // 紫色
+        
+        canvasCtx.fillStyle = gradient;
+        canvasCtx.fillRect(x, height - barHeight, barWidth, barHeight);
+        
+        x += barWidth + 1;
+      }
+      
+      // 继续动画
+      animationId = requestAnimationFrame(drawVisualizer);
+    }
+    
+    // 更新播放按钮状态
+    function updatePlayButton() {
+      if (audioPlayer.paused) {
+        playBtn.innerHTML = '<i class="fa fa-play text-xl"></i>';
+      } else {
+        playBtn.innerHTML = '<i class="fa fa-pause text-xl"></i>';
+      }
+    }
+    
+    // 高亮当前播放的曲目
+    function highlightCurrentTrack() {
+      const trackItems = document.querySelectorAll('.track-item');
+      trackItems.forEach((item, index) => {
+        if (index === currentTrackIndex) {
+          item.classList.add('bg-primary/10');
+          item.querySelector('i').className = 'fa fa-pause text-secondary';
+        } else {
+          item.classList.remove('bg-primary/10');
+          item.querySelector('i').className = 'fa fa-play text-gray-400 hover:text-secondary';
+        }
+      });
+    }
+    
+    // 格式化时间（秒 -> mm:ss）
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      seconds = Math.floor(seconds % 60);
+      return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // 更新进度条
+    function updateProgress() {
+      const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+      progressBar.style.width = `${percent}%`;
+      currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    }
+    
+    // 事件监听器
+    playBtn.addEventListener('click', async () => {
+      // 确保音频上下文可用
+      if (!await ensureAudioContext()) {
+        alert('无法初始化音频播放，请尝试点击页面任意位置后再试');
+        return;
+      }
+      
+      if (audioPlayer.paused) {
+        // 如果还没有加载任何曲目，加载第一首
+        if (currentTrackIndex === -1 && tracks.length > 0) {
+          playTrack(0);
+        } else {
+          try {
+            await audioPlayer.play();
+            updatePlayButton();
+          } catch (e) {
+            console.error('播放失败:', e);
+            alert('播放失败: ' + e.message);
+          }
+        }
+      } else {
+        audioPlayer.pause();
+        updatePlayButton();
+      }
+    });
+    
+    prevBtn.addEventListener('click', () => {
+      if (tracks.length === 0) return;
+      
+      let newIndex = currentTrackIndex - 1;
+      if (newIndex < 0) {
+        newIndex = tracks.length - 1; // 循环到最后一首
+      }
+      playTrack(newIndex);
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      if (tracks.length === 0) return;
+      
+      let newIndex = currentTrackIndex + 1;
+      if (newIndex >= tracks.length) {
+        newIndex = 0; // 循环到第一首
+      }
+      playTrack(newIndex);
+    });
+    
+    // 进度条点击事件
+    progressBar.parentElement.addEventListener('click', (e) => {
+      const width = progressBar.parentElement.clientWidth;
+      const clickX = e.offsetX;
+      const duration = audioPlayer.duration;
+      audioPlayer.currentTime = (clickX / width) * duration;
+    });
+    
+    // 音量控制
+    volumeControl.addEventListener('input', () => {
+      audioPlayer.volume = volumeControl.value;
+      // 显示当前音量状态图标
+      const volumeIcon = document.querySelector('.fa-volume-up').parentElement;
+      if (volumeControl.value == 0) {
+        volumeIcon.innerHTML = '<i class="fa fa-volume-off text-gray-400"></i>';
+      } else if (volumeControl.value < 0.5) {
+        volumeIcon.innerHTML = '<i class="fa fa-volume-down text-gray-400"></i>';
+      } else {
+        volumeIcon.innerHTML = '<i class="fa fa-volume-up text-gray-400"></i>';
+      }
+    });
+    
+    // 音频时间更新
+    audioPlayer.addEventListener('timeupdate', updateProgress);
+    
+    // 音频加载完成
+    audioPlayer.addEventListener('loadedmetadata', () => {
+      totalTimeEl.textContent = formatTime(audioPlayer.duration);
+    });
+    
+    // 音频播放结束
+    audioPlayer.addEventListener('ended', () => {
+      // 播放下一首
+      nextBtn.click();
+    });
+    
+    // 音频错误处理
+    audioPlayer.addEventListener('error', (e) => {
+      console.error('音频错误:', e);
+      let errorMsg = '播放出错: ';
+      switch(audioPlayer.error.code) {
+        case 1: errorMsg += '音频加载中止'; break;
+        case 2: errorMsg += '音频网络错误'; break;
+        case 3: errorMsg += '音频解码错误，请检查文件格式'; break;
+        case 4: errorMsg += '音频不支持'; break;
+        default: errorMsg += '未知错误';
+      }
+      alert(errorMsg);
+    });
+    
+    // 移动端菜单切换
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      if (mobileMenu.classList.contains('hidden')) {
+        menuToggle.innerHTML = '<i class="fa fa-bars"></i>';
+      } else {
+        menuToggle.innerHTML = '<i class="fa fa-times"></i>';
+      }
+    });
+    
+    // 滚动时改变导航栏样式
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('py-2', 'bg-dark/90', 'shadow-md');
+        navbar.classList.remove('py-4', 'bg-dark/80');
+      } else {
+        navbar.classList.add('py-4', 'bg-dark/80');
+        navbar.classList.remove('py-2', 'bg-dark/90', 'shadow-md');
+      }
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          // 关闭移动菜单（如果打开）
+          if (!mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.add('hidden');
+            menuToggle.innerHTML = '<i class="fa fa-bars"></i>';
+          }
+          
+          // 滚动到目标位置
+          window.scrollTo({
+            top: targetElement.offsetTop - 80, // 考虑导航栏高度
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+    
+    // 页面点击时尝试resume音频上下文（解决浏览器限制）
+    document.addEventListener('click', async () => {
+      await ensureAudioContext();
+    });
+    
+    // 窗口大小变化时重新绘制可视化
+    window.addEventListener('resize', () => {
+      if (visualizer) {
+        visualizer.width = visualizer.offsetWidth;
+        visualizer.height = visualizer.offsetHeight;
+      }
+    });
+    
+    // 初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      initTrackList();
+      
+      // 设置canvas尺寸
+      visualizer.width = visualizer.offsetWidth;
+      visualizer.height = visualizer.offsetHeight;
+      
+      // 初始显示第一首音乐信息（如果有）
+      if (tracks.length > 0) {
+        currentTrackEl.textContent = tracks[0].title;
+        trackInfoEl.textContent = tracks[0].description;
+      }
+    });
+  </script>
+</body>
+</html>
