@@ -752,10 +752,25 @@
       totalTimeEl.textContent = formatTime(audioPlayer.duration);
     });
     
-    // 音频播放结束
+    // 音频播放结束 - 修复部分
     audioPlayer.addEventListener('ended', () => {
-      // 播放下一首
-      nextBtn.click();
+      if (tracks.length === 0) return;
+      
+      let nextIndex = currentTrackIndex + 1;
+      if (nextIndex >= tracks.length) {
+        nextIndex = 0; // 循环到第一首
+      }
+      
+      // 使用setTimeout避免立即播放可能导致的冲突
+      setTimeout(() => {
+        playTrack(nextIndex).catch(e => {
+          console.error('自动播放下一首失败:', e);
+          // 如果播放失败，继续尝试下一首
+          if (nextIndex + 1 < tracks.length) {
+            audioPlayer.dispatchEvent(new Event('ended'));
+          }
+        });
+      }, 300); // 添加短暂延迟
     });
     
     // 音频错误处理
